@@ -31,22 +31,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $message = "Voiture supprimée avec succès";
                 $messageType = "success";
                 break;
-
+                case 'premodifier':
+                    if (isset($_GET['id'])) {
+                        $id = intval($_GET['id']);  // convert the value to an integer.
+                        $voiturej =$card->read($id);
+                        
+                         //This informs the client (browser or API consumer) that the response is in JSON format.
+                      echo json_encode($voiturej);         //Converts the $voiture associative array to a JSON string and sends it as the response.
+                    }
+                    break;
             case 'modifier':
-                // $query = "UPDATE voiture SET marque = ?, modele = ?, immatriculation = ?, annee = ? WHERE id_voiture = ?";
-                // if ($stmt = mysqli_prepare($conn, $query)) {
-                //     mysqli_stmt_bind_param($stmt, "sssii",
-                //         $_POST['marque'],
-                //         $_POST['modele'],
-                //         $_POST['immatriculation'],
-                //         $_POST['annee'],
-                //         $_POST['id_voiture']
-                //     );
-                //     mysqli_stmt_execute($stmt);
-                //     mysqli_stmt_close($stmt);
-                //     $message = "Voiture modifiée avec succès";
-                //     $messageType = "success";
-                // }
+               
+                
+                $car->updateVoiture($_POST['id_voiture'],$_POST['immatriculation'], $_POST['marque'], $_POST['modele'], $_POST['year'], $_POST['img']);
                 break;
         }
     }
@@ -210,10 +207,12 @@ $voitures = $car->read();
     </div>
     <script>
 function editVoiture(id) {
+    // window.alert("heeeeeeeeeeeeeey");
     // Fetch car data
     fetch(`get_voiture.php?id=${id}`)
         .then(response => response.json())
-        .then(voiture => {
+        .then(voiturej => {
+           
             // Create modal with edit form
             const modal = document.createElement('div');
             modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full';
@@ -222,11 +221,11 @@ function editVoiture(id) {
                     <h3 class="text-lg font-bold mb-4">Modifier la voiture</h3>
                     <form action="" method="POST">
                         <input type="hidden" name="action" value="modifier">
-                        <input type="hidden" name="id_voiture" value="${voiture.id_voiture}">
+                        <input type="hidden" name="id_voiture" value="${voiturej.id_voiture}">
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Marque</label>
-                                <input type="text" name="marque" value="${voiture.marque}" required
+                                <input type="text" name="marque" value="${voiturej.marque}" required
                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                             </div>
                             <div>

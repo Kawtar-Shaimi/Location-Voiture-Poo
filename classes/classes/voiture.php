@@ -25,6 +25,19 @@ class Voiture extends BaseCrud {
     
         return $stmt->rowCount();
     }
+
+    
+    public function updateVoiture($id, $NumImmatriculation, $Marque, $Modele, $Annee, $image) {
+        $data = array(
+            "NumImmatriculation" => $NumImmatriculation,
+            "Marque" => $Marque,
+            "Modele" => $Modele,
+            "Annee" => $Annee,
+            "image" => $image
+        );
+
+        return $this->update($id, $data);
+    }
 }
 
 // Test the creatvoiture function
