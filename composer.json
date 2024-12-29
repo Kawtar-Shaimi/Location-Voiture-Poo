@@ -1,0 +1,16 @@
+{
+    "name": "user/location_poo",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "User\\LocationPoo\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Kawtar-Shaimi",
+            "email": "kawtar.shaimi8@gmail.com"
+        }
+    ],
+    "require": {}
+}
