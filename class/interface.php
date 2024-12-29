@@ -12,11 +12,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action'])) {
         switch ($_POST['action']) {
             case 'ajouter':
-                if (!isset($_POST['immatriculation'], $_POST['marque'], $_POST['modele'], $_POST['year'], $_POST['img'])) {
+                if (!isset($_POST['immatriculation'], $_POST['marque'], $_POST['modele'], $_POST['year'])) {
+
                     echo "Some form fields are missing!";
                     exit;
                 }else{
-                    $car->creatvoiture($_POST['immatriculation'], $_POST['marque'], $_POST['modele'], $_POST['year'], $_POST['img']);
+
+                    if ($_FILES["img"]["error"] === 4) {
+                        echo "<script>alert('img Does Not Exist');</script>";
+                    } else {
+                        // Get img details
+                        $fileName = $_FILES["img"]["name"];
+                        $fileSize = $_FILES["img"]["size"];
+                        $tmpName = $_FILES["img"]["tmp_name"];
+                
+                        // Define valid image extensions
+                        $validImageExtension = ['jpg', 'jpeg', 'png'];
+                        $imageExtension = explode('.', $fileName);
+                        $imageExtension = strtolower(end($imageExtension));
+                
+                        // Validate image extension
+                        if (!in_array($imageExtension, $validImageExtension)) {
+                            echo "<script>alert('Invalid Image Extension');</script>";
+                        }
+                        // Validate image size
+                        elseif ($fileSize > 1000000) { // 1MB limit
+                            echo "<script>alert('Image Size Is Too Large');</script>";
+                        } else {
+                            // Generate a unique name for the image
+                            $newImageName = uniqid();
+                            $newImageName .= '.' . $imageExtension;
+                
+                            // Move the uploaded file to the 'img/' directory
+                            move_uploaded_file($tmpName, 'uploads/' . $newImageName);
+                
+                            // Insert the data into the database using PDO
+                            $car->creatvoiture($_POST['immatriculation'], $_POST['marque'], $_POST['modele'], $_POST['year'], $newImageName);
+                            echo "<script>
+                            alert('Successfully Added');
+                            
+                          </script>";
+                            
+                        }
+                    }
+                  
                 }
                 
 
@@ -126,7 +165,7 @@ $voitures = $car->read();
                 <i class="fas fa-plus-circle text-blue-600 text-2xl mr-3"></i>
                 <h2 class="text-2xl font-bold text-gray-800">Ajouter une nouvelle voiture</h2>
             </div>
-            <form action="" method="POST" class="space-y-6">
+            <form action="" method="POST"  enctype="multipart/form-data" class="space-y-6">
                 <input type="hidden" name="action" value="ajouter">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div>
@@ -161,7 +200,7 @@ $voitures = $car->read();
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             <i class="fas fa-image mr-2"></i>Image URL
                         </label>
-                        <input type="text" name="img" placeholder="URL de l'image" required
+                        <input type="file" name="img" placeholder="URL de l'image" required
                                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
                     </div>
                 </div>
