@@ -26,7 +26,19 @@ class Voiture extends BaseCrud {
         return $stmt->rowCount();
     }
 
-    
+    public function read($id = null) {
+        if ($id) {
+            $sql = "SELECT * FROM {$this->table} WHERE id_voiture = ?";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute([$id]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+        
+        $sql = "SELECT * FROM {$this->table}";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     public function updateVoiture($id, $NumImmatriculation, $Marque, $Modele, $Annee, $image) {
         $data = array(
             "NumImmatriculation" => $NumImmatriculation,

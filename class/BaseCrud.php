@@ -39,7 +39,7 @@ class BaseCrud {
     public function update($id, $data) {
         $setClause = implode(', ', array_map(fn($col) => "{$col} = ?", array_keys($data)));
 
-        $sql = "UPDATE {$this->table} SET {$setClause} WHERE id = ?";
+        $sql = "UPDATE {$this->table} SET {$setClause} WHERE id_voiture = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([...array_values($data), $id]);
 

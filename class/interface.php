@@ -4,7 +4,6 @@ include("voiture.php");
 
 $message = "";
 $messageType = "";
-$jsonData = null;
 // var_dump($_SERVER);
 $car = new Voiture();
 // var_dump($_POST);
@@ -32,15 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $message = "Voiture supprimée avec succès";
                 $messageType = "success";
                 break;
-                case 'premodifier':
-                    if (isset($_GET['id_voiture'])) {
-                        $id = intval($_GET['id_voiture']);  // convert the value to an integer.
-                        $voiturej =$car->read($id);
-                        
-                         //This informs the client (browser or API consumer) that the response is in JSON format.
-                         $jsonData = isset($voiturej) ? json_encode($voiturej) : 'null';      //Converts the $voiture associative array to a JSON string and sends it as the response.
-                    }
-                    break;
+
             case 'modifier':
                
                 
@@ -186,15 +177,10 @@ $voitures = $car->read();
                                 </div>
                             </td>
                             <td class="px-6 py-4 text-sm font-medium">
-                                <form action="" method="GET" class="inline">
-                                   
-                                    <input type="hidden" name="action" value="premodifier">
-                                    <input type="hidden" name="id_voiture" value="<?= $voiture['id_voiture'] ?>">
-                                <button type="submit" 
+                                <button onclick="editVoiture(<?= $voiture['id_voiture'] ?>)"
                                         class="text-indigo-600 hover:text-indigo-900 mr-3">
                                     Modifier
                                 </button>
-                        </form>
                                 <form action="" method="POST" class="inline">
                                     <input type="hidden" name="action" value="supprimer">
                                     <input type="hidden" name="id_voiture" value="<?= $voiture['id_voiture'] ?>">
@@ -212,57 +198,65 @@ $voitures = $car->read();
         </div>
     </div>
     <script>
-function editVoiture() {
-    const voiture = <?php echo isset($jsonData) ? $jsonData : 'null'; ?>;
-    if (!voiture) {
-        console.error('No vehicle data available');
-        return;
-    }
-    
-    const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full';
-    modal.innerHTML = `
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <h3 class="text-lg font-bold mb-4">Modifier la voiture</h3>
-            <form action="" method="POST">
-                <input type="hidden" name="action" value="modifier">
-                <input type="hidden" name="id_voiture" value="${voiture.id_voiture}">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Marque</label>
-                        <input type="text" name="marque" value="${voiture.Marque}" required
-                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Modèle</label>
-                        <input type="text" name="modele" value="${voiture.Modele}" required
-                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Immatriculation</label>
-                        <input type="text" name="immatriculation" value="${voiture.NumImmatriculation}" required
-                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Année</label>
-                        <input type="number" name="year" value="${voiture.Annee}" required
-                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                    </div>
-                    <div class="text-right">
-                        <button type="button" onclick="this.closest('.fixed').remove()"
-                                class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 mr-2">
-                            Annuler
-                        </button>
-                        <button type="submit"
-                                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                            Enregistrer
-                        </button>
-                    </div>
+function editVoiture(id) {
+    fetch(`get_voiture.php?id=${id}`)
+        .then(response => response.json())
+        .then(voiture => {
+            // Create modal with edit form
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full';
+            modal.innerHTML = `
+                <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                    <h3 class="text-lg font-bold mb-4">Modifier la voiture</h3>
+                    <form action="" method="POST">
+                        <input type="hidden" name="action" value="modifier">
+                        <input type="hidden" name="id_voiture" value="${voiture.id_voiture}">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Marque</label>
+                                <input type="text" name="marque" value="${voiture.Marque}" required
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Modèle</label>
+                                <input type="text" name="modele" value="${voiture.Modele}" required
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Immatriculation</label>
+                                <input type="text" name="immatriculation" value="${voiture.NumImmatriculation}" required
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Année</label>
+                                <input type="number" name="year" value="${voiture.Annee}" required
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Image</label>
+                                <input type="text" name="img" value="${voiture.image}" required
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            </div>
+                            <div class="text-right">
+                                <button type="button" onclick="this.closest('.fixed').remove()"
+                                        class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 mr-2">
+                                    Annuler
+                                </button>
+                                <button type="submit"
+                                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                                    Enregistrer
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-            </form>
-        </div>
-    `;
-    document.body.appendChild(modal);
+            `;
+            document.body.appendChild(modal);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Une erreur est survenue lors de la récupération des données de la voiture.');
+        });
 }
 </script>
 </body>
